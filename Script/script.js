@@ -94,3 +94,40 @@ function updateCart() {
     // Update cart icon
     updateCartIcon();
 }
+
+function removeItem(index) {
+    total -= cart[index].price;
+    cart.splice(index, 1);
+    updateCart();
+}
+
+// Notification system
+function showNotification(message) {
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 100);
+    
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+            notification.remove();
+        }, 300);
+    }, 2000);
+}
+
+// Update cart icon with item count
+function updateCartIcon() {
+    const cartIcon = document.querySelector('.cart-icon');
+    if (cart.length > 0) {
+        cartIcon.setAttribute('data-count', cart.length);
+        cartIcon.classList.add('has-items');
+    } else {
+        cartIcon.removeAttribute('data-count');
+        cartIcon.classList.remove('has-items');
+    }
+}
