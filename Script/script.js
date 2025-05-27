@@ -56,3 +56,41 @@ const mainNav = document.getElementById('mainNav');
 menuToggle.addEventListener('click', () => {
     mainNav.classList.toggle('active');
 });
+
+// Shopping cart functionality
+let cart = [];
+let total = 0;
+
+function addToCart(name, price) {
+    cart.push({ name, price });
+    total += price;
+    updateCart();
+    showNotification(`${name} ditambahkan ke keranjang`);
+}
+
+function updateCart() {
+    const cartItems = document.getElementById('cartItems');
+    const totalElement = document.getElementById('totalHarga');
+    const totalItemsElement = document.getElementById('totalItems');
+    
+    if (cartItems) {
+        cartItems.innerHTML = '';
+        cart.forEach((item, index) => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <div class="cart-item">
+                    <span>${item.name}</span>
+                    <span>Rp${item.price}</span>
+                    <button onclick="removeItem(${index})" class="btn-remove">Hapus</button>
+                </div>
+            `;
+            cartItems.appendChild(li);
+        });
+    }
+    
+    if (totalElement) totalElement.textContent = total;
+    if (totalItemsElement) totalItemsElement.textContent = cart.length;
+    
+    // Update cart icon
+    updateCartIcon();
+}
