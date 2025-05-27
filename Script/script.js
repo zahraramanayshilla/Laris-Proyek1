@@ -131,3 +131,57 @@ function updateCartIcon() {
         cartIcon.classList.remove('has-items');
     }
 }
+
+// WhatsApp checkout
+document.getElementById('checkoutBtn')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    if (cart.length === 0) {
+        showNotification('Keranjang masih kosong');
+        return;
+    }
+    
+    let message = "Saya ingin memesan:%0A";
+    cart.forEach(item => {
+        message += `- ${item.name}: Rp${item.price}%0A`;
+    });
+    message += `%0ATotal: Rp${total}`;
+    
+    window.open(`https://wa.me/+6281234567890?text=${message}`);
+});
+
+
+// Carousel functionality
+function initCarousel() {
+    const track = document.querySelector('.carousel-track');
+    if (!track) return;
+
+    // Clone the first few slides and append them to create seamless loop
+    const slides = [...track.children];
+    const slidesToClone = 3;
+    
+    for (let i = 0; i < slidesToClone; i++) {
+        const clone = slides[i].cloneNode(true);
+        track.appendChild(clone);
+    }
+
+    // Start the continuous animation
+    track.style.transform = 'translateX(0)';
+    track.style.animation = 'slideLeft 20s linear infinite';
+}
+
+// Add this to your CSS
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideLeft {
+        0% {
+            transform: translateX(0);
+        }
+        100% {
+            transform: translateX(calc(-33.333% * 6));
+        }
+    }
+`;
+document.head.appendChild(style);
+
+// Initialize carousel when DOM is loaded
+document.addEventListener('DOMContentLoaded', initCarousel);
