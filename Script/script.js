@@ -259,3 +259,158 @@ function filterProducts() {
         }
     });
 }
+
+// Sistem Rating dan Ulasan Produk
+let reviews = {};
+
+function initializeReviewSystem() {
+    // Tambahkan tombol review ke setiap produk
+    const productCards = document.querySelectorAll('.card');
+    productCards.forEach(card => {
+        const productName = card.querySelector('h3').textContent;
+        const cardContent = card.querySelector('.card-content');
+        
+        const reviewButton = document.createElement('button');
+        reviewButton.className = 'btn-review';
+        reviewButton.textContent = 'Lihat Ulasan';
+        reviewButton.onclick = function() { showReviewModal(productName); };
+        
+        cardContent.appendChild(reviewButton);
+    });
+    
+    // Muat ulasan dari local storage
+    loadReviewsFromLocalStorage();
+}
+
+function loadReviewsFromLocalStorage() {
+    const savedReviews = localStorage.getItem('tokoLarisReviews');
+    if (savedReviews) {
+        reviews = JSON.parse(savedReviews);
+    }
+}
+
+function saveReviewsToLocalStorage() {
+    localStorage.setItem('tokoLarisReviews', JSON.stringify(reviews));
+}
+
+function showReviewModal(productName) {
+    // Buat modal untuk ulasan
+    const modal = document.createElement('div');
+    modal.className = 'review-modal';
+    
+    // Dapatkan ulasan produk atau inisialisasi jika belum ada
+    if (!reviews[productName]) {
+        reviews[productName] = [];
+    }
+    
+    // Hitung rating rata-rata
+    let averageRating = 0;
+    if (reviews[productName].length > 0) {
+        const sum = reviews[productName].reduce((total, review) => total + review.rating, 0);
+        averageRating = sum / reviews[productName].length;
+    }
+    
+    // Buat konten modal
+    const modalContent = `
+        <div class="review-modal-content">
+            <span class="close-modal">&times;</span>
+            <h3>Ulasan untuk ${productName}</h3>
+            <div class="average-rating">
+                Rating: ${averageRating.toFixed(1)} / 5 (${reviews[productName].length} ulasan)
+            </div>
+            <div class="review-list">
+                ${reviews[productName].map(review => `
+                    <div class="review-item">
+                        <div class="review-rating">${'★'.repeat(review.rating)}${'☆'.repeat(5-review.rating)}</div>
+                        <div class="review-text">${review.text}</div>
+                        <div class="review-author">${review.author}</div>
+                    </div>
+                `).join('') || '<p>Belum ada ulasan</p>'}
+            </div>
+            <div class="add-review-form">
+                <h4>Tambahkan Ulasan</h4>
+                <div class="rating-input">
+                    <span>Rating: </span>
+                    <div class="star-rating">
+                        <span data-rating="1">☆</span>
+                        <span data-rating="2">☆</span>
+                        <span data-rating="3">☆</span>
+                        <span data-rating="4">☆</span>
+                        <span data-rating="5">☆</span>
+                    </div>
+                </div>
+                <input type="text" id="reviewAuthor" placeholder="Nama Anda" />
+                <textarea id="reviewText" placeholder="Tulis ulasan Anda"></textarea>
+                <button id="submitReview">Kirim Ulasan</button>
+            </div>
+        </div>
+    `;
+    
+    modal.innerHTML = modalContent;
+    document.body.appendChild(modal);
+    
+    // Tambahkan event listener untuk menutup modal
+    modal.querySelector('.close-modal').addEventListener('click', () => {
+        modal.remove();
+    });
+    
+    // Tambahkan event listener untuk rating bintang
+    let selectedRating = 0;
+    const stars = modal.querySelectorAll('.star-rating span');
+    stars.forEach(star => {
+        star.addEventListener('mouseover', function() {
+            const rating = this.dataset.rating;
+            highlightStars(stars, rating);
+        });
+        
+        star.addEventListener('mouseout', function() {
+            highlightStars(stars, selectedRating);
+        });
+        
+        star.addEventListener('click', function() {
+            selectedRating = this.dataset.rating;
+            highlightStars(stars, selectedRating);
+        });
+    });
+    
+    // Tambahkan event listener untuk submit ulasan
+    modal.querySelector('#submitReview').addEventListener('click', function() {
+        const author = modal.querySelector('#reviewAuthor').value.trim() || 'Anonim';
+        const text = modal.querySelector('#reviewText').value.trim();
+        
+        if (selectedRating === 0) {
+            alert('Silakan pilih rating');
+            return;
+        }
+        
+        if (text === '') {
+            alert('Silakan tulis ulasan Anda');
+            return;
+        }
+        
+        // Tambahkan ulasan baru
+        reviews[productName].push({
+            rating: parseInt(selectedRating),
+            author,
+            text,
+            date: new Date().toISOString()
+        });
+        
+        // Simpan ke local storage
+        saveReviewsToLocalStorage();
+        
+        // Tutup dan buka kembali modal untuk refresh
+        modal.remove();
+        showReviewModal(productName);
+    });
+}
+
+function highlightStars(stars, rating) {
+    stars.forEach(star => {
+        if (star.dataset.rating <= rating) {
+            star.textContent = '★';
+        } else {
+            star.textContent = '☆';
+        }
+    });
+}
