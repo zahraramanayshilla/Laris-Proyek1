@@ -414,3 +414,259 @@ function highlightStars(stars, rating) {
         }
     });
 }
+
+// Tambahkan CSS untuk modal ulasan
+const reviewStyles = document.createElement('style');
+reviewStyles.textContent = `
+    .btn-review {
+        width: 100%;
+        padding: 0.8rem;
+        background: #f3f4f6;
+        color: var(--text-color);
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        margin-top: 0.5rem;
+    }
+    
+    .btn-review:hover {
+        background: #e5e7eb;
+    }
+    
+    .review-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+    }
+    
+    .review-modal-content {
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        width: 90%;
+        max-width: 600px;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+    
+    .close-modal {
+        float: right;
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+    
+    .review-list {
+        margin: 1rem 0;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    
+    .review-item {
+        padding: 0.5rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .review-rating {
+        color: #f59e0b;
+    }
+    
+    .add-review-form {
+        margin-top: 1rem;
+    }
+    
+    .star-rating {
+        display: inline-block;
+        font-size: 1.5rem;
+        color: #f59e0b;
+        cursor: pointer;
+    }
+    
+    #reviewAuthor, #reviewText {
+        width: 100%;
+        padding: 0.5rem;
+        margin: 0.5rem 0;
+        border: 1px solid #e5e7eb;
+        border-radius: 5px;
+    }
+    
+    #reviewText {
+        height: 100px;
+        resize: vertical;
+    }
+    
+    #submitReview {
+        padding: 0.5rem 1rem;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+`;
+document.head.appendChild(reviewStyles);
+
+// Implementasi Tema Gelap (Dark Mode)
+function initializeDarkMode() {
+    // Tambahkan tombol toggle dark mode di navbar
+    const nav = document.querySelector('nav ul');
+    const darkModeToggle = document.createElement('li');
+    darkModeToggle.innerHTML = '<button id="darkModeToggle" aria-label="Toggle Dark Mode">🌙</button>';
+    nav.appendChild(darkModeToggle);
+    
+    // Tambahkan CSS untuk dark mode
+    const darkModeStyles = document.createElement('style');
+    darkModeStyles.textContent = `
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --text-color: #1f2937;
+            --light-bg: #f3f4f6;
+            --card-bg: white;
+            --body-bg: white;
+        }
+        
+        body.dark-mode {
+            --primary-color: #3b82f6;
+            --secondary-color: #60a5fa;
+            --text-color: #f3f4f6;
+            --light-bg: #1f2937;
+            --card-bg: #374151;
+            --body-bg: #111827;
+        }
+        
+        body.dark-mode {
+            background-color: var(--body-bg);
+            color: var(--text-color);
+        }
+        
+        body.dark-mode .navbar {
+            background-color: #111827;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        body.dark-mode .card {
+            background-color: var(--card-bg);
+        }
+        
+        body.dark-mode nav a {
+            color: var(--text-color);
+        }
+        
+        #darkModeToggle {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.3s;
+        }
+        
+        #darkModeToggle:hover {
+            background-color: rgba(0,0,0,0.1);
+        }
+        
+        body.dark-mode #darkModeToggle {
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        body.dark-mode #darkModeToggle:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+    `;
+    document.head.appendChild(darkModeStyles);
+    
+    // Tambahkan event listener untuk toggle dark mode
+    const darkModeButton = document.getElementById('darkModeToggle');
+    darkModeButton.addEventListener('click', toggleDarkMode);
+    
+    // Periksa preferensi pengguna dari local storage
+    const isDarkMode = localStorage.getItem('darkMode') === 'true';
+    if (isDarkMode) {
+        document.body.classList.add('dark-mode');
+        darkModeButton.textContent = '☀️';
+    }
+}
+
+function toggleDarkMode() {
+    const darkModeButton = document.getElementById('darkModeToggle');
+    const isDarkMode = document.body.classList.toggle('dark-mode');
+    
+    // Simpan preferensi ke local storage
+    localStorage.setItem('darkMode', isDarkMode);
+    
+    // Ubah ikon tombol
+    darkModeButton.textContent = isDarkMode ? '☀️' : '🌙';
+}
+
+// Panggil fungsi ini saat DOM sudah dimuat
+document.addEventListener('DOMContentLoaded', function() {
+    initializeProductFilter();
+});
+
+// Animasi Scroll dan Efek Parallax
+function initializeScrollAnimations() {
+    // Tambahkan efek parallax pada hero section
+    const hero = document.querySelector('.hero');
+    if (hero) {
+        window.addEventListener('scroll', function() {
+            const scrollPosition = window.scrollY;
+            hero.style.backgroundPosition = `center ${scrollPosition * 0.5}px`;
+        });
+    }
+    
+    // Tambahkan animasi fade-in untuk elemen saat di-scroll
+    const animateOnScroll = function() {
+        const elements = document.querySelectorAll('.animate-on-scroll');
+        
+        elements.forEach(element => {
+            const elementPosition = element.getBoundingClientRect().top;
+            const windowHeight = window.innerHeight;
+            
+            if (elementPosition < windowHeight - 100) {
+                element.classList.add('animated');
+            }
+        });
+    };
+    
+    // Tambahkan kelas untuk elemen yang akan dianimasikan
+    const sections = document.querySelectorAll('section:not(.hero)');
+    sections.forEach(section => {
+        section.classList.add('animate-on-scroll');
+    });
+    
+    // Tambahkan CSS untuk animasi
+    const animationStyles = document.createElement('style');
+    animationStyles.textContent = `
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        
+        .animate-on-scroll.animated {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    `;
+    document.head.appendChild(animationStyles);
+    
+    // Panggil fungsi animasi saat scroll
+    window.addEventListener('scroll', animateOnScroll);
+    // Panggil sekali saat halaman dimuat
+    animateOnScroll();
+}
+
+// Panggil fungsi ini saat DOM sudah dimuat
+document.addEventListener('DOMContentLoaded', function() {
+    initializeScrollAnimations();
+});
