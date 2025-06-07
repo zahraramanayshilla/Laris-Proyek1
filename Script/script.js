@@ -185,3 +185,77 @@ document.head.appendChild(style);
 
 // Initialize carousel when DOM is loaded
 document.addEventListener('DOMContentLoaded', initCarousel);
+
+// Sistem Filter dan Pencarian Produk
+function initializeProductFilter() {
+    // Tambahkan elemen HTML untuk filter di halaman produk
+    const productSection = document.querySelector('.produk-page .container');
+    if (!productSection) return;
+    
+    const filterHTML = `
+        <div class="filter-container">
+            <input type="text" id="searchProduct" placeholder="Cari produk..." class="search-input">
+            <div class="filter-options">
+                <button class="filter-btn active" data-filter="all">Semua</button>
+                <button class="filter-btn" data-filter="keripik">Keripik</button>
+                <button class="filter-btn" data-filter="goreng">Gorengan</button>
+                <button class="filter-btn" data-filter="tradisional">Tradisional</button>
+            </div>
+        </div>
+    `;
+    
+    // Sisipkan filter sebelum grid produk
+    const gridElement = productSection.querySelector('.produk-grid');
+    gridElement.insertAdjacentHTML('beforebegin', filterHTML);
+    
+    // Tambahkan event listener untuk pencarian
+    const searchInput = document.getElementById('searchProduct');
+    searchInput.addEventListener('input', filterProducts);
+    
+    // Tambahkan event listener untuk tombol filter
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    filterButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            // Hapus kelas active dari semua tombol
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            // Tambahkan kelas active ke tombol yang diklik
+            e.target.classList.add('active');
+            filterProducts();
+        });
+    });
+    
+    // Tambahkan kategori ke setiap produk (dalam data atribut)
+    const products = document.querySelectorAll('.card');
+    products.forEach(product => {
+        const productName = product.querySelector('h3').textContent.toLowerCase();
+        if (productName.includes('keripik')) {
+            product.dataset.category = 'keripik';
+        } else if (productName.includes('goreng')) {
+            product.dataset.category = 'goreng';
+        } else if (productName.includes('wajit') || productName.includes('sale')) {
+            product.dataset.category = 'tradisional';
+        } else {
+            product.dataset.category = 'lainnya';
+        }
+    });
+}
+
+function filterProducts() {
+    const searchValue = document.getElementById('searchProduct').value.toLowerCase();
+    const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+    
+    const products = document.querySelectorAll('.card');
+    products.forEach(product => {
+        const productName = product.querySelector('h3').textContent.toLowerCase();
+        const productCategory = product.dataset.category;
+        
+        const matchesSearch = productName.includes(searchValue);
+        const matchesFilter = activeFilter === 'all' || productCategory === activeFilter;
+        
+        if (matchesSearch && matchesFilter) {
+            product.style.display = 'block';
+        } else {
+            product.style.display = 'none';
+        }
+    });
+}
