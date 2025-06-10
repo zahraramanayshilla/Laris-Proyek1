@@ -670,3 +670,6 @@ function initializeScrollAnimations() {
 document.addEventListener('DOMContentLoaded', function() {
     initializeScrollAnimations();
 });
+
+
+// caorsel
