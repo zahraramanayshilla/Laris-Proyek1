@@ -24,3 +24,9 @@ Proyek ini terdiri dari beberapa halaman utama:
 - **Sistem Ulasan Produk**: Pengguna dapat memberikan dan melihat ulasan serta rating untuk setiap produk.
 - **Tema Gelap (Dark Mode)**: Terdapat pilihan untuk mengganti tema tampilan menjadi mode gelap untuk kenyamanan pengguna.
 - **Informasi Kontak dan Lokasi**: Dilengkapi dengan alamat, email, nomor WhatsApp, dan peta lokasi yang terintegrasi untuk memudahkan pelanggan menemukan toko fisik.
+
+## Teknologi yang Digunakan
+
+- **HTML5**: Sebagai struktur dasar halaman web.
+- **CSS3**: Untuk memberikan gaya, tata letak, dan animasi, termasuk penggunaan _Flexbox_ dan _Grid_ untuk desain yang responsif.
+- **JavaScript**: Untuk fungsionalitas dinamis seperti manajemen keranjang belanja, efek _scroll_, notifikasi, sistem filter, ulasan produk, dan interaktivitas lainnya.
