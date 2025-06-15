@@ -95,6 +95,7 @@ function updateCart() {
     updateCartIcon();
 }
 
+
 function removeItem(index) {
     total -= cart[index].price;
     cart.splice(index, 1);
