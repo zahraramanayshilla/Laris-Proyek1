@@ -133,7 +133,6 @@ function showNotification(message) {
     }, 2000);
 }
 
-
 // Update cart icon with item count
 function updateCartIcon() {
     const cartIcon = document.querySelector('.cart-icon');
