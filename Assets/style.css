@@ -333,6 +333,77 @@
     display: flex;
     justify-content: space-between;
   }
+  .cart-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    background: #f9f9f9;
+    padding: 0.8rem 1rem;
+    margin-bottom: 0.8rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    flex-wrap: wrap;
+  }
+  
+  .cart-item-name {
+    flex: 2;
+    font-weight: 600;
+  }
+  
+  .cart-item-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 3;
+    flex-wrap: wrap;
+  }
+  
+  .cart-btn {
+    padding: 0.4rem 0.8rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .cart-btn:hover {
+    background-color: var(--secondary-color);
+  }
+  
+  .cart-remove {
+    background: transparent;
+    color: red;
+    font-size: 1.2rem;
+    cursor: pointer;
+    border: none;
+  }
+  /* Tombol Checkout via WhatsApp */
+#checkoutBtn {
+  display: inline-block;
+  background-color: #25D366; /* warna khas WhatsApp */
+  color: white;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+#checkoutBtn:hover {
+  background-color: #1ebe5d;
+  transform: translateY(-2px);
+}
+
+#checkoutBtn:active {
+  background-color: #128c7e;
+  transform: scale(0.98);
+}
+
   
   /* -------------------------------
      ABOUT PAGE

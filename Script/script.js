@@ -58,12 +58,13 @@ menuToggle.addEventListener('click', () => {
 });
 
 // Shopping cart functionality
-let cart = [];
-let total = 0;
+let cart = JSON.parse(localStorage.getItem('cart')) || [];
+let total = calculateTotal(cart);
 
 function addToCart(name, price) {
     cart.push({ name, price });
     total += price;
+    saveCart();
     updateCart();
     showNotification(`${name} ditambahkan ke keranjang`);
 }
@@ -72,7 +73,7 @@ function updateCart() {
     const cartItems = document.getElementById('cartItems');
     const totalElement = document.getElementById('totalHarga');
     const totalItemsElement = document.getElementById('totalItems');
-    
+
     if (cartItems) {
         cartItems.innerHTML = '';
         cart.forEach((item, index) => {
@@ -80,26 +81,35 @@ function updateCart() {
             li.innerHTML = `
                 <div class="cart-item">
                     <span>${item.name}</span>
-                    <span>Rp${item.price}</span>
+                    <span>Rp${item.price.toLocaleString()}</span>
                     <button onclick="removeItem(${index})" class="btn-remove">Hapus</button>
                 </div>
             `;
             cartItems.appendChild(li);
         });
     }
-    
-    if (totalElement) totalElement.textContent = total;
+
+    if (totalElement) totalElement.textContent = total.toLocaleString();
     if (totalItemsElement) totalItemsElement.textContent = cart.length;
-    
-    // Update cart icon
+
     updateCartIcon();
 }
 
 function removeItem(index) {
     total -= cart[index].price;
     cart.splice(index, 1);
+    saveCart();
     updateCart();
 }
+
+function saveCart() {
+    localStorage.setItem('cart', JSON.stringify(cart));
+}
+
+function calculateTotal(cartData) {
+    return cartData.reduce((acc, item) => acc + item.price, 0);
+}
+
 
 // Notification system
 function showNotification(message) {
@@ -107,18 +117,21 @@ function showNotification(message) {
     notification.className = 'notification';
     notification.textContent = message;
     document.body.appendChild(notification);
-    
+
+    // Show after a short delay to trigger transition
     setTimeout(() => {
         notification.classList.add('show');
     }, 100);
-    
+
+    // Hide and remove
     setTimeout(() => {
         notification.classList.remove('show');
         setTimeout(() => {
             notification.remove();
-        }, 300);
+        }, 300); // match transition duration
     }, 2000);
 }
+
 
 // Update cart icon with item count
 function updateCartIcon() {
@@ -146,9 +159,20 @@ document.getElementById('checkoutBtn')?.addEventListener('click', function(e) {
     });
     message += `%0ATotal: Rp${total}`;
     
-    window.open(`https://wa.me/+6281234567890?text=${message}`);
+    window.open(`https://wa.me/+6281252012576?text=${message}`);
 });
 
+document.addEventListener('DOMContentLoaded', function () {
+    updateCart();
+});
+
+function checkout() {
+    alert("Terima kasih sudah belanja!");
+    localStorage.removeItem('cart');
+    cart = [];
+    total = 0;
+    updateCart();
+}
 
 // Carousel functionality
 function initCarousel() {
