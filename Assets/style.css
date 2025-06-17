@@ -1142,7 +1142,6 @@ footer {
       1.5rem;
   }
   
-   /* Perbaikan ukuran card produk */
   .carousel-slide {
     flex: 0 0 80%;
     min-width: 80%;
