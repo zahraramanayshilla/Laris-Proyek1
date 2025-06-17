@@ -204,66 +204,137 @@ function initCarousel() {
 // Fungsi untuk mengaktifkan swipe pada mobile
 function enableTouchSwipe(track) {
     let startX;
-    let scrollLeft;
+    let startTranslateX = 0;
     let isDragging = false;
-    const container = track.parentElement;
     
     // Touch events
     track.addEventListener('touchstart', (e) => {
         isDragging = true;
-        startX = e.touches[0].pageX - track.offsetLeft;
-        scrollLeft = track.scrollLeft;
+        startX = e.touches[0].pageX;
+        
+        // Dapatkan posisi transform saat ini
+        const currentTransform = getComputedStyle(track).getPropertyValue('transform');
+        if (currentTransform !== 'none') {
+            const matrix = new DOMMatrix(currentTransform);
+            startTranslateX = matrix.m41;
+        }
+        
         // Hentikan animasi jika sedang berjalan
         track.style.animation = 'none';
-    });
+        track.style.transition = 'none';
+    }, { passive: true });
     
     track.addEventListener('touchend', () => {
         isDragging = false;
-    });
+        track.style.transition = 'transform 0.3s ease';
+        
+        // Snap ke posisi slide terdekat
+        const slideWidth = track.children[0].offsetWidth;
+        const currentTranslateX = startTranslateX;
+        const snapPosition = Math.round(currentTranslateX / slideWidth) * slideWidth;
+        
+        // Batasi pergerakan agar tidak terlalu jauh ke kiri atau kanan
+        const maxTranslateX = 0;
+        const minTranslateX = -(track.scrollWidth - track.parentElement.offsetWidth);
+        
+        let finalPosition = snapPosition;
+        if (finalPosition > maxTranslateX) finalPosition = maxTranslateX;
+        if (finalPosition < minTranslateX) finalPosition = minTranslateX;
+        
+        track.style.transform = `translateX(${finalPosition}px)`;
+    }, { passive: true });
     
     track.addEventListener('touchmove', (e) => {
         if (!isDragging) return;
-        e.preventDefault();
-        const x = e.touches[0].pageX - track.offsetLeft;
-        const walk = (x - startX) * 2; // Kecepatan scroll
-        const currentTransform = getComputedStyle(track).getPropertyValue('transform');
-        const matrix = new DOMMatrix(currentTransform);
-        const currentX = matrix.m41;
         
-        track.style.transform = `translateX(${currentX + walk}px)`;
-        startX = x;
-    });
+        const x = e.touches[0].pageX;
+        const deltaX = x - startX;
+        const newTranslateX = startTranslateX + deltaX;
+        
+        // Tambahkan resistensi saat mencapai batas
+        const maxTranslateX = 100; // Sedikit ruang ekstra di awal
+        const minTranslateX = -(track.scrollWidth - track.parentElement.offsetWidth + 100); // Ruang ekstra di akhir
+        
+        let finalTranslateX = newTranslateX;
+        
+        // Tambahkan resistensi saat mencapai batas
+        if (newTranslateX > maxTranslateX) {
+            finalTranslateX = maxTranslateX + (newTranslateX - maxTranslateX) * 0.2;
+        } else if (newTranslateX < minTranslateX) {
+            finalTranslateX = minTranslateX + (newTranslateX - minTranslateX) * 0.2;
+        }
+        
+        track.style.transform = `translateX(${finalTranslateX}px)`;
+    }, { passive: false });
     
     // Mouse events (untuk testing di desktop)
     track.addEventListener('mousedown', (e) => {
         isDragging = true;
-        startX = e.pageX - track.offsetLeft;
-        scrollLeft = track.scrollLeft;
+        startX = e.pageX;
+        
+        // Dapatkan posisi transform saat ini
+        const currentTransform = getComputedStyle(track).getPropertyValue('transform');
+        if (currentTransform !== 'none') {
+            const matrix = new DOMMatrix(currentTransform);
+            startTranslateX = matrix.m41;
+        }
+        
         track.style.animation = 'none';
+        track.style.transition = 'none';
         track.style.cursor = 'grabbing';
+        e.preventDefault();
     });
     
     track.addEventListener('mouseup', () => {
         isDragging = false;
         track.style.cursor = 'grab';
+        track.style.transition = 'transform 0.3s ease';
+        
+        // Snap ke posisi slide terdekat
+        const slideWidth = track.children[0].offsetWidth;
+        const currentTranslateX = startTranslateX;
+        const snapPosition = Math.round(currentTranslateX / slideWidth) * slideWidth;
+        
+        // Batasi pergerakan
+        const maxTranslateX = 0;
+        const minTranslateX = -(track.scrollWidth - track.parentElement.offsetWidth);
+        
+        let finalPosition = snapPosition;
+        if (finalPosition > maxTranslateX) finalPosition = maxTranslateX;
+        if (finalPosition < minTranslateX) finalPosition = minTranslateX;
+        
+        track.style.transform = `translateX(${finalPosition}px)`;
     });
     
     track.addEventListener('mouseleave', () => {
-        isDragging = false;
-        track.style.cursor = 'grab';
+        if (isDragging) {
+            isDragging = false;
+            track.style.cursor = 'grab';
+            track.style.transition = 'transform 0.3s ease';
+        }
     });
     
     track.addEventListener('mousemove', (e) => {
         if (!isDragging) return;
         e.preventDefault();
-        const x = e.pageX - track.offsetLeft;
-        const walk = (x - startX) * 2;
-        const currentTransform = getComputedStyle(track).getPropertyValue('transform');
-        const matrix = new DOMMatrix(currentTransform);
-        const currentX = matrix.m41;
         
-        track.style.transform = `translateX(${currentX + walk}px)`;
-        startX = x;
+        const x = e.pageX;
+        const deltaX = x - startX;
+        const newTranslateX = startTranslateX + deltaX;
+        
+        // Tambahkan resistensi saat mencapai batas
+        const maxTranslateX = 100;
+        const minTranslateX = -(track.scrollWidth - track.parentElement.offsetWidth + 100);
+        
+        let finalTranslateX = newTranslateX;
+        
+        if (newTranslateX > maxTranslateX) {
+            finalTranslateX = maxTranslateX + (newTranslateX - maxTranslateX) * 0.2;
+        } else if (newTranslateX < minTranslateX) {
+            finalTranslateX = minTranslateX + (newTranslateX - minTranslateX) * 0.2;
+        }
+        
+        track.style.transform = `translateX(${finalTranslateX}px)`;
     });
 }
 
