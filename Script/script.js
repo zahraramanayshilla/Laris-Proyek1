@@ -174,25 +174,24 @@ function checkout() {
     updateCart();
 }
 
-// Carousel functionality dengan animasi otomatis untuk semua perangkat
+// Carousel functionality
 function initCarousel() {
     const track = document.querySelector('.carousel-track');
     if (!track) return;
 
-    // Clone the first few slides and append them to create seamless loop
+    // Clone slides untuk efek infinite scroll
     const slides = [...track.children];
-    const slidesToClone = 3;
+    const slidesToClone = slides.length; // Clone semua slides
     
     for (let i = 0; i < slidesToClone; i++) {
         const clone = slides[i].cloneNode(true);
         track.appendChild(clone);
     }
 
-    // Jalankan animasi otomatis untuk semua perangkat
+    // Jalankan animasi
     track.style.transform = 'translateX(0)';
-    track.style.animation = 'slideLeft 20s linear infinite';
     
-    // Tambahkan hover pause untuk semua perangkat
+    // Pause animasi saat hover
     const carousel = track.closest('.carousel');
     if (carousel) {
         carousel.addEventListener('mouseenter', () => {
@@ -203,14 +202,26 @@ function initCarousel() {
             track.style.animationPlayState = 'running';
         });
     }
-    
-    // Preload gambar untuk performa lebih baik
-    slides.forEach(slide => {
-        const img = slide.querySelector('img');
-        if (img) {
-            const newImg = new Image();
-            newImg.src = img.src;
-        }
+
+    // Touch events untuk mobile
+    let startX;
+    let scrollLeft;
+
+    track.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].pageX - track.offsetLeft;
+        scrollLeft = track.scrollLeft;
+        track.style.animation = 'none'; // Hentikan animasi saat touch
+    });
+
+    track.addEventListener('touchend', () => {
+        track.style.animation = 'slideLeft 20s linear infinite'; // Mulai animasi lagi
+    });
+
+    track.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        const x = e.touches[0].pageX - track.offsetLeft;
+        const walk = (x - startX) * 2;
+        track.scrollLeft = scrollLeft - walk;
     });
 }
 
