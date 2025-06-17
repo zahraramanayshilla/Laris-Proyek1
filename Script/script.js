@@ -174,7 +174,7 @@ function checkout() {
     updateCart();
 }
 
-// Carousel functionality dengan optimasi untuk mobile
+// Carousel functionality dengan animasi otomatis untuk semua perangkat
 function initCarousel() {
     const track = document.querySelector('.carousel-track');
     if (!track) return;
@@ -188,16 +188,13 @@ function initCarousel() {
         track.appendChild(clone);
     }
 
-    // Cek apakah ini perangkat mobile
-    const isMobile = window.innerWidth <= 768;
+    // Jalankan animasi otomatis untuk semua perangkat
+    track.style.transform = 'translateX(0)';
+    track.style.animation = 'slideLeft 20s linear infinite';
     
-    if (!isMobile) {
-        // Hanya jalankan animasi otomatis di desktop
-        track.style.transform = 'translateX(0)';
-        track.style.animation = 'slideLeft 20s linear infinite';
-        
-        // Tambahkan hover pause untuk desktop
-        const carousel = track.closest('.carousel');
+    // Tambahkan hover pause untuk semua perangkat
+    const carousel = track.closest('.carousel');
+    if (carousel) {
         carousel.addEventListener('mouseenter', () => {
             track.style.animationPlayState = 'paused';
         });
@@ -205,13 +202,6 @@ function initCarousel() {
         carousel.addEventListener('mouseleave', () => {
             track.style.animationPlayState = 'running';
         });
-    } else {
-        // Untuk mobile, kita akan menggunakan touch events dengan optimasi
-        track.style.transform = 'translateX(0)';
-        enableTouchSwipe(track);
-        
-        // Tambahkan class untuk styling mobile
-        track.closest('.carousel-container').classList.add('mobile-carousel');
     }
     
     // Preload gambar untuk performa lebih baik
