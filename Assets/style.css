@@ -423,7 +423,7 @@ nav
 }
 
 /* -------------------------------
-     CART PAGE
+     KERANJANG PAGE
      ------------------------------- */
 .keranjang-page {
   padding: 8rem
@@ -579,7 +579,7 @@ nav
   font-weight: bold;
 }
 
-/* Tombol Checkout via WhatsApp */
+/* Tombol Checkout via WhatsApp BERDASARKAN ID*/
 #checkoutBtn {
   display: inline-block;
   background-color: #25d366; /* warna khas WhatsApp */
