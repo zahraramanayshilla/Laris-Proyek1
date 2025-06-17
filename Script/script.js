@@ -188,10 +188,104 @@ function initCarousel() {
         track.appendChild(clone);
     }
 
-    // Start the continuous animation
-    track.style.transform = 'translateX(0)';
-    track.style.animation = 'slideLeft 20s linear infinite';
+    // Cek apakah ini perangkat mobile
+    const isMobile = window.innerWidth <= 768;
+    
+    if (!isMobile) {
+        // Hanya jalankan animasi otomatis di desktop
+        track.style.transform = 'translateX(0)';
+        track.style.animation = 'slideLeft 20s linear infinite';
+    } else {
+        // Untuk mobile, kita akan menggunakan touch events
+        enableTouchSwipe(track);
+    }
 }
+
+// Fungsi untuk mengaktifkan swipe pada mobile
+function enableTouchSwipe(track) {
+    let startX;
+    let scrollLeft;
+    let isDragging = false;
+    const container = track.parentElement;
+    
+    // Touch events
+    track.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        startX = e.touches[0].pageX - track.offsetLeft;
+        scrollLeft = track.scrollLeft;
+        // Hentikan animasi jika sedang berjalan
+        track.style.animation = 'none';
+    });
+    
+    track.addEventListener('touchend', () => {
+        isDragging = false;
+    });
+    
+    track.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        const x = e.touches[0].pageX - track.offsetLeft;
+        const walk = (x - startX) * 2; // Kecepatan scroll
+        const currentTransform = getComputedStyle(track).getPropertyValue('transform');
+        const matrix = new DOMMatrix(currentTransform);
+        const currentX = matrix.m41;
+        
+        track.style.transform = `translateX(${currentX + walk}px)`;
+        startX = x;
+    });
+    
+    // Mouse events (untuk testing di desktop)
+    track.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        startX = e.pageX - track.offsetLeft;
+        scrollLeft = track.scrollLeft;
+        track.style.animation = 'none';
+        track.style.cursor = 'grabbing';
+    });
+    
+    track.addEventListener('mouseup', () => {
+        isDragging = false;
+        track.style.cursor = 'grab';
+    });
+    
+    track.addEventListener('mouseleave', () => {
+        isDragging = false;
+        track.style.cursor = 'grab';
+    });
+    
+    track.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        const x = e.pageX - track.offsetLeft;
+        const walk = (x - startX) * 2;
+        const currentTransform = getComputedStyle(track).getPropertyValue('transform');
+        const matrix = new DOMMatrix(currentTransform);
+        const currentX = matrix.m41;
+        
+        track.style.transform = `translateX(${currentX + walk}px)`;
+        startX = x;
+    });
+}
+
+// Tambahkan event listener untuk resize window
+window.addEventListener('resize', () => {
+    const track = document.querySelector('.carousel-track');
+    if (!track) return;
+    
+    // Reset animasi
+    track.style.animation = 'none';
+    track.style.transform = 'translateX(0)';
+    
+    // Reinisialisasi carousel
+    setTimeout(() => {
+        const isMobile = window.innerWidth <= 768;
+        if (!isMobile) {
+            track.style.animation = 'slideLeft 20s linear infinite';
+        } else {
+            enableTouchSwipe(track);
+        }
+    }, 100);
+});
 
 // Add this to your CSS
 const style = document.createElement('style');
@@ -203,6 +297,11 @@ style.textContent = `
         100% {
             transform: translateX(calc(-33.333% * 6));
         }
+    }
+    
+    /* Tambahkan style untuk cursor pada carousel */
+    .carousel-track {
+        cursor: grab;
     }
 `;
 document.head.appendChild(style);
