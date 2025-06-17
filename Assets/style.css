@@ -1141,6 +1141,29 @@ footer {
     padding: 0.8rem
       1.5rem;
   }
+  
+   /* Perbaikan ukuran card produk */
+  .carousel-slide {
+    flex: 0 0 80%;
+    min-width: 80%;
+    padding: 0 0.5rem;
+  }
+  
+  .card {
+    max-width: 100%;
+    margin: 0 auto;
+  }
+  
+  .card img {
+    height: 180px;
+  }
+  
+  /* Menghentikan animasi otomatis di mobile */
+  .carousel-track {
+    animation: none;
+    transition: transform 0.3s ease;
+    touch-action: pan-x;
+  }
 }
 
 /* -------------------------------
