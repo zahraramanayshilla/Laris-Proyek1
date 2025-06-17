@@ -292,17 +292,23 @@ function enableTouchSwipe(track) {
         return slideWidth;
     }
     
-    // Snap ke slide terdekat
+    // Snap ke slide terdekat dengan perbaikan untuk mencegah stuck
     function snapToNearestSlide(currentPosition) {
         const width = calculateSlideWidth();
-        // Hitung index slide berdasarkan posisi
+        
+        // Hitung index slide berdasarkan posisi dengan lebih akurat
+        // Gunakan Math.round untuk snap ke slide terdekat
         currentSlideIndex = Math.round(currentPosition / width);
         
-        // Batasi pergerakan
+        // Batasi pergerakan dengan margin yang lebih tepat
         const maxTranslateX = 0;
-        const minTranslateX = -(track.scrollWidth - track.parentElement.offsetWidth + width/2);
+        const containerWidth = track.parentElement.offsetWidth;
+        const trackWidth = track.scrollWidth;
+        const minTranslateX = -(trackWidth - containerWidth);
         
         let finalPosition = currentSlideIndex * width;
+        
+        // Pastikan tidak melebihi batas
         if (finalPosition > maxTranslateX) {
             finalPosition = maxTranslateX;
             currentSlideIndex = 0;
@@ -312,25 +318,39 @@ function enableTouchSwipe(track) {
             currentSlideIndex = Math.floor(minTranslateX / width);
         }
         
-        // Animasi ke posisi
-        track.style.transform = `translateX(${finalPosition}px)`;
+        // Gunakan translate3d untuk hardware acceleration
+        track.style.transform = `translate3d(${finalPosition}px, 0, 0)`;
         
         // Update indikator
         updateIndicator();
         
+        // Log untuk debugging
+        console.log('Snap to position:', finalPosition, 'Slide index:', currentSlideIndex);
+        
         return finalPosition;
     }
     
-    // Touch events dengan optimasi
+    // Touch events dengan optimasi dan perbaikan untuk mencegah stuck
     track.addEventListener('touchstart', (e) => {
+        // Hentikan event jika sudah ada drag yang sedang berjalan
+        if (isDragging) return;
+        
         isDragging = true;
         startX = e.touches[0].pageX;
         
-        // Dapatkan posisi transform saat ini
+        // Dapatkan posisi transform saat ini dengan lebih akurat
         const currentTransform = getComputedStyle(track).getPropertyValue('transform');
         if (currentTransform !== 'none') {
-            const matrix = new DOMMatrix(currentTransform);
-            startTranslateX = matrix.m41;
+            try {
+                const matrix = new DOMMatrix(currentTransform);
+                startTranslateX = matrix.m41;
+            } catch (err) {
+                // Fallback jika DOMMatrix tidak didukung
+                const matrix = currentTransform.match(/matrix.*\((.*)\)/)[1].split(', ');
+                startTranslateX = parseFloat(matrix[4] || 0);
+            }
+        } else {
+            startTranslateX = 0;
         }
         
         // Hentikan animasi jika sedang berjalan
@@ -339,21 +359,122 @@ function enableTouchSwipe(track) {
         
         // Tambahkan class active untuk styling
         track.classList.add('swiping');
+        
+        // Log untuk debugging
+        console.log('Touch start at:', startX, 'Initial position:', startTranslateX);
     }, { passive: true });
     
-    track.addEventListener('touchend', () => {
+    // Variabel untuk mendeteksi swipe cepat (flick)
+    let lastX = 0;
+    let lastTime = 0;
+    let velocityX = 0;
+    
+    // Fungsi untuk mendeteksi dan menangani swipe cepat
+    function handleSwipeVelocity(endX, endTime) {
+        const timeElapsed = endTime - lastTime;
+        if (timeElapsed > 0 && lastX !== 0) {
+            // Hitung kecepatan dalam pixel per milidetik
+            velocityX = (endX - lastX) / timeElapsed;
+            
+            // Log untuk debugging
+            console.log('Swipe velocity:', velocityX, 'px/ms');
+            
+            // Jika kecepatan cukup tinggi, lakukan swipe otomatis ke arah tersebut
+            if (Math.abs(velocityX) > 0.5) { // Threshold untuk swipe cepat
+                const direction = velocityX > 0 ? -1 : 1; // Arah swipe (positif = kanan, negatif = kiri)
+                const width = calculateSlideWidth();
+                
+                // Dapatkan posisi saat ini
+                const currentTransform = getComputedStyle(track).getPropertyValue('transform');
+                let currentPosition = 0;
+                if (currentTransform !== 'none') {
+                    try {
+                        const matrix = new DOMMatrix(currentTransform);
+                        currentPosition = matrix.m41;
+                    } catch (err) {
+                        const matrix = currentTransform.match(/matrix.*\((.*?)\)/)[1].split(', ');
+                        currentPosition = parseFloat(matrix[4] || 0);
+                    }
+                }
+                
+                // Hitung slide target berdasarkan arah dan kecepatan
+                const targetSlide = Math.round(currentPosition / width) - direction;
+                const targetPosition = targetSlide * width;
+                
+                // Animasi ke posisi target
+                track.style.transition = `transform ${Math.min(0.5, 0.2 + Math.abs(velocityX) * 0.3)}s cubic-bezier(0.25, 0.46, 0.45, 0.94)`;
+                track.style.transform = `translate3d(${targetPosition}px, 0, 0)`;
+                
+                // Update indikator
+                currentSlideIndex = targetSlide;
+                updateIndicator();
+                
+                return true; // Swipe cepat terdeteksi dan ditangani
+            }
+        }
+        return false; // Tidak ada swipe cepat
+    }
+    
+    track.addEventListener('touchend', (e) => {
         if (!isDragging) return;
-        
         isDragging = false;
-        track.style.transition = 'transform 0.3s ease';
+        
+        // Dapatkan posisi transform saat ini dengan lebih akurat
+        const currentTransform = getComputedStyle(track).getPropertyValue('transform');
+        let currentPosition = 0;
+        
+        if (currentTransform !== 'none') {
+            try {
+                const matrix = new DOMMatrix(currentTransform);
+                currentPosition = matrix.m41;
+            } catch (err) {
+                // Fallback jika DOMMatrix tidak didukung
+                const matrix = currentTransform.match(/matrix.*\((.*?)\)/)[1].split(', ');
+                currentPosition = parseFloat(matrix[4] || 0);
+            }
+        }
+        
+        // Hapus class active
         track.classList.remove('swiping');
         
-        // Snap ke posisi slide terdekat dengan animasi
-        snapToNearestSlide(startTranslateX);
+        // Cek apakah ini swipe cepat
+        const endX = e.changedTouches ? e.changedTouches[0].pageX : lastX;
+        const endTime = Date.now();
+        const swipeFast = handleSwipeVelocity(endX, endTime);
+        
+        // Jika bukan swipe cepat, lakukan snap normal
+        if (!swipeFast) {
+            // Log untuk debugging
+            console.log('Touch end, current position before snap:', currentPosition);
+            
+            // Tambahkan transisi untuk animasi snap yang lebih halus
+            track.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            
+            // Delay sedikit untuk memastikan transisi diterapkan
+            setTimeout(() => {
+                // Snap ke slide terdekat
+                snapToNearestSlide(currentPosition);
+                
+                // Setelah transisi selesai, reset transition
+                setTimeout(() => {
+                    if (!isDragging) { // Pastikan tidak ada drag baru yang dimulai
+                        track.style.transition = '';
+                    }
+                }, 300); // Sesuai dengan durasi transisi
+            }, 10);
+        }
+        
+        // Reset variabel kecepatan
+        lastX = 0;
+        lastTime = 0;
+        velocityX = 0;
     }, { passive: true });
     
     track.addEventListener('touchmove', (e) => {
         if (!isDragging) return;
+        
+        // Prevent default to stop page scrolling while swiping
+        e.preventDefault();
         
         const x = e.touches[0].pageX;
         const deltaX = x - startX;
@@ -375,49 +496,154 @@ function enableTouchSwipe(track) {
         
         // Gunakan transform dengan translateZ untuk hardware acceleration
         track.style.transform = `translate3d(${finalTranslateX}px, 0, 0)`;
-    }, { passive: true });
+        
+        // Update untuk perhitungan kecepatan
+        const currentX = e.touches[0].pageX;
+        const currentTime = Date.now();
+        
+        // Simpan posisi dan waktu untuk perhitungan kecepatan
+        if (lastX !== 0) {
+            const dt = currentTime - lastTime;
+            if (dt > 0) {
+                velocityX = (currentX - lastX) / dt;
+            }
+        }
+        
+        lastX = currentX;
+        lastTime = currentTime;
+    }, { passive: false }); // Ubah ke passive: false agar preventDefault berfungsi
     
-    // Mouse events (untuk testing di desktop)
+    // Mouse events (untuk testing di desktop) dengan perbaikan untuk konsistensi dengan touch events
     track.addEventListener('mousedown', (e) => {
+        // Hentikan event jika sudah ada drag yang sedang berjalan
+        if (isDragging) return;
+        
         isDragging = true;
         startX = e.pageX;
         
-        // Dapatkan posisi transform saat ini
+        // Dapatkan posisi transform saat ini dengan lebih akurat
         const currentTransform = getComputedStyle(track).getPropertyValue('transform');
         if (currentTransform !== 'none') {
-            const matrix = new DOMMatrix(currentTransform);
-            startTranslateX = matrix.m41;
+            try {
+                const matrix = new DOMMatrix(currentTransform);
+                startTranslateX = matrix.m41;
+            } catch (err) {
+                // Fallback jika DOMMatrix tidak didukung
+                const matrix = currentTransform.match(/matrix.*\((.*)\)/)[1].split(', ');
+                startTranslateX = parseFloat(matrix[4] || 0);
+            }
+        } else {
+            startTranslateX = 0;
         }
         
+        // Hentikan animasi jika sedang berjalan
         track.style.animation = 'none';
         track.style.transition = 'none';
         track.style.cursor = 'grabbing';
         track.classList.add('swiping');
+        
+        // Prevent default untuk mencegah drag teks
         e.preventDefault();
+        
+        // Reset variabel kecepatan
+        lastX = e.pageX;
+        lastTime = Date.now();
+        velocityX = 0;
+        
+        // Log untuk debugging
+        console.log('Mouse down at:', startX, 'Initial position:', startTranslateX);
     });
     
-    track.addEventListener('mouseup', () => {
+    track.addEventListener('mouseup', (e) => {
         if (!isDragging) return;
-        
         isDragging = false;
+        
+        // Dapatkan posisi transform saat ini dengan lebih akurat
+        const currentTransform = getComputedStyle(track).getPropertyValue('transform');
+        let currentPosition = 0;
+        if (currentTransform !== 'none') {
+            try {
+                const matrix = new DOMMatrix(currentTransform);
+                currentPosition = matrix.m41;
+            } catch (err) {
+                // Fallback jika DOMMatrix tidak didukung
+                const matrix = currentTransform.match(/matrix.*\((.*)\)/)[1].split(', ');
+                currentPosition = parseFloat(matrix[4] || 0);
+            }
+        }
+        
+        // Reset cursor dan hapus class active
         track.style.cursor = 'grab';
-        track.style.transition = 'transform 0.3s ease';
         track.classList.remove('swiping');
         
-        // Snap ke posisi slide terdekat dengan animasi
-        snapToNearestSlide(startTranslateX);
+        // Cek apakah ini swipe cepat
+        const endX = e.pageX;
+        const endTime = Date.now();
+        const swipeFast = handleSwipeVelocity(endX, endTime);
+        
+        // Jika bukan swipe cepat, lakukan snap normal
+        if (!swipeFast) {
+            // Log untuk debugging
+            console.log('Mouse up, current position before snap:', currentPosition);
+            
+            // Tambahkan transisi untuk animasi snap yang lebih halus
+            track.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            
+            // Delay sedikit untuk memastikan transisi diterapkan
+            setTimeout(() => {
+                // Snap ke slide terdekat
+                snapToNearestSlide(currentPosition);
+                
+                // Setelah transisi selesai, reset transition
+                setTimeout(() => {
+                    if (!isDragging) { // Pastikan tidak ada drag baru yang dimulai
+                        track.style.transition = '';
+                    }
+                }, 300); // Sesuai dengan durasi transisi
+            }, 10);
+        }
+        
+        // Reset variabel kecepatan
+        lastX = 0;
+        lastTime = 0;
+        velocityX = 0;
     });
     
     track.addEventListener('mouseleave', () => {
-        if (isDragging) {
-            isDragging = false;
-            track.style.cursor = 'grab';
-            track.style.transition = 'transform 0.3s ease';
-            track.classList.remove('swiping');
-            
-            // Snap ke posisi slide terdekat
-            snapToNearestSlide(startTranslateX);
+        if (!isDragging) return;
+        isDragging = false;
+        
+        // Dapatkan posisi transform saat ini dengan lebih akurat
+        const currentTransform = getComputedStyle(track).getPropertyValue('transform');
+        let currentPosition = 0;
+        if (currentTransform !== 'none') {
+            try {
+                const matrix = new DOMMatrix(currentTransform);
+                currentPosition = matrix.m41;
+            } catch (err) {
+                // Fallback jika DOMMatrix tidak didukung
+                const matrix = currentTransform.match(/matrix.*\((.*)\)/)[1].split(', ');
+                currentPosition = parseFloat(matrix[4] || 0);
+            }
         }
+        
+        // Reset cursor dan hapus class active
+        track.style.cursor = 'grab';
+        track.classList.remove('swiping');
+        
+        // Log untuk debugging
+        console.log('Mouse leave, current position before snap:', currentPosition);
+        
+        // Tambahkan transisi untuk animasi snap yang lebih halus
+        track.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        
+        // Snap ke slide terdekat
+        snapToNearestSlide(currentPosition);
+        
+        // Reset variabel kecepatan
+        lastX = 0;
+        lastTime = 0;
+        velocityX = 0;
     });
     
     track.addEventListener('mousemove', (e) => {
@@ -443,6 +669,21 @@ function enableTouchSwipe(track) {
         
         // Gunakan transform dengan translateZ untuk hardware acceleration
         track.style.transform = `translate3d(${finalTranslateX}px, 0, 0)`;
+        
+        // Update untuk perhitungan kecepatan
+        const currentX = e.pageX;
+        const currentTime = Date.now();
+        
+        // Simpan posisi dan waktu untuk perhitungan kecepatan
+        if (lastX !== 0) {
+            const dt = currentTime - lastTime;
+            if (dt > 0) {
+                velocityX = (currentX - lastX) / dt;
+            }
+        }
+        
+        lastX = currentX;
+        lastTime = currentTime;
     });
     
     // Tambahkan event listener untuk orientasi perubahan
