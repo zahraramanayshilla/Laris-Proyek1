@@ -1146,6 +1146,7 @@ footer {
     flex: 0 0 80%;
     min-width: 80%;
     padding: 0 0.5rem;
+    opacity: 1; /* Pastikan semua slide terlihat jelas di mobile */
   }
   
   .card {
@@ -1157,11 +1158,46 @@ footer {
     height: 180px;
   }
   
-  /* Menghentikan animasi otomatis di mobile */
+  /* Menghentikan animasi otomatis di mobile dan mengoptimalkan untuk touch */
   .carousel-track {
     animation: none;
     transition: transform 0.3s ease;
     touch-action: pan-x;
+    will-change: transform; /* Optimasi performa */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling di iOS */
+  }
+  
+  /* Indikator scroll untuk carousel mobile */
+  .carousel-container::after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 4px;
+    background: rgba(37, 99, 235, 0.2);
+    border-radius: 2px;
+  }
+  
+  /* Gaya untuk indikator swipe */
+  .swipe-indicator {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+    gap: 8px;
+  }
+  
+  .swipe-indicator .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ccc;
+    transition: background 0.3s ease;
+  }
+  
+  .swipe-indicator .dot.active {
+    background: var(--primary-color);
   }
 }
 

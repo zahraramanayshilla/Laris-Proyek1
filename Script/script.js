@@ -174,7 +174,7 @@ function checkout() {
     updateCart();
 }
 
-// Carousel functionality
+// Carousel functionality dengan optimasi untuk mobile
 function initCarousel() {
     const track = document.querySelector('.carousel-track');
     if (!track) return;
@@ -195,19 +195,133 @@ function initCarousel() {
         // Hanya jalankan animasi otomatis di desktop
         track.style.transform = 'translateX(0)';
         track.style.animation = 'slideLeft 20s linear infinite';
+        
+        // Tambahkan hover pause untuk desktop
+        const carousel = track.closest('.carousel');
+        carousel.addEventListener('mouseenter', () => {
+            track.style.animationPlayState = 'paused';
+        });
+        
+        carousel.addEventListener('mouseleave', () => {
+            track.style.animationPlayState = 'running';
+        });
     } else {
-        // Untuk mobile, kita akan menggunakan touch events
+        // Untuk mobile, kita akan menggunakan touch events dengan optimasi
+        track.style.transform = 'translateX(0)';
         enableTouchSwipe(track);
+        
+        // Tambahkan class untuk styling mobile
+        track.closest('.carousel-container').classList.add('mobile-carousel');
     }
+    
+    // Preload gambar untuk performa lebih baik
+    slides.forEach(slide => {
+        const img = slide.querySelector('img');
+        if (img) {
+            const newImg = new Image();
+            newImg.src = img.src;
+        }
+    });
 }
 
-// Fungsi untuk mengaktifkan swipe pada mobile
+// Fungsi untuk mengaktifkan swipe pada mobile dengan optimasi performa dan UX
 function enableTouchSwipe(track) {
     let startX;
     let startTranslateX = 0;
     let isDragging = false;
+    let currentSlideIndex = 0;
+    let slideWidth;
+    let totalSlides;
+    let swipeIndicator;
     
-    // Touch events
+    // Buat indikator swipe (dots)
+    function createSwipeIndicator() {
+        const carouselContainer = track.closest('.carousel-container');
+        if (!carouselContainer) return;
+        
+        // Hapus indikator yang sudah ada jika ada
+        const existingIndicator = carouselContainer.querySelector('.swipe-indicator');
+        if (existingIndicator) {
+            existingIndicator.remove();
+        }
+        
+        // Hitung jumlah slide unik (tanpa clone)
+        const uniqueSlides = Math.min(9, track.children.length - 3); // Maksimal 9 dot, kurangi clone slides
+        
+        // Buat container untuk dots
+        swipeIndicator = document.createElement('div');
+        swipeIndicator.className = 'swipe-indicator';
+        
+        // Buat dots
+        for (let i = 0; i < uniqueSlides; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'dot';
+            if (i === 0) dot.classList.add('active');
+            swipeIndicator.appendChild(dot);
+        }
+        
+        // Tambahkan ke container
+        carouselContainer.appendChild(swipeIndicator);
+        
+        // Simpan jumlah total slide
+        totalSlides = uniqueSlides;
+    }
+    
+    // Update indikator dot berdasarkan slide yang aktif
+    function updateIndicator() {
+        if (!swipeIndicator) return;
+        
+        // Hitung index slide saat ini (berdasarkan posisi)
+        const dots = swipeIndicator.querySelectorAll('.dot');
+        dots.forEach(dot => dot.classList.remove('active'));
+        
+        // Pastikan index dalam range yang valid
+        const activeIndex = Math.abs(currentSlideIndex) % totalSlides;
+        if (dots[activeIndex]) {
+            dots[activeIndex].classList.add('active');
+        }
+    }
+    
+    // Inisialisasi indikator
+    createSwipeIndicator();
+    
+    // Hitung lebar slide
+    function calculateSlideWidth() {
+        // Gunakan lebar slide pertama sebagai referensi
+        slideWidth = track.children[0].offsetWidth;
+        return slideWidth;
+    }
+    
+    // Snap ke slide terdekat
+    function snapToNearestSlide(currentPosition) {
+        const width = calculateSlideWidth();
+        // Hitung index slide berdasarkan posisi
+        currentSlideIndex = Math.round(currentPosition / width);
+        
+        // Batasi pergerakan
+        const maxTranslateX = 0;
+        const minTranslateX = -(track.scrollWidth - track.parentElement.offsetWidth + width/2);
+        
+        let finalPosition = currentSlideIndex * width;
+        if (finalPosition > maxTranslateX) {
+            finalPosition = maxTranslateX;
+            currentSlideIndex = 0;
+        }
+        if (finalPosition < minTranslateX) {
+            finalPosition = minTranslateX;
+            currentSlideIndex = Math.floor(minTranslateX / width);
+        }
+        
+        // Animasi ke posisi
+        track.style.transform = `translateX(${finalPosition}px)`;
+        
+        // Update indikator
+        updateIndicator();
+        
+        return finalPosition;
+    }
+    
+    // Touch events dengan optimasi
     track.addEventListener('touchstart', (e) => {
         isDragging = true;
         startX = e.touches[0].pageX;
@@ -222,26 +336,20 @@ function enableTouchSwipe(track) {
         // Hentikan animasi jika sedang berjalan
         track.style.animation = 'none';
         track.style.transition = 'none';
+        
+        // Tambahkan class active untuk styling
+        track.classList.add('swiping');
     }, { passive: true });
     
     track.addEventListener('touchend', () => {
+        if (!isDragging) return;
+        
         isDragging = false;
         track.style.transition = 'transform 0.3s ease';
+        track.classList.remove('swiping');
         
-        // Snap ke posisi slide terdekat
-        const slideWidth = track.children[0].offsetWidth;
-        const currentTranslateX = startTranslateX;
-        const snapPosition = Math.round(currentTranslateX / slideWidth) * slideWidth;
-        
-        // Batasi pergerakan agar tidak terlalu jauh ke kiri atau kanan
-        const maxTranslateX = 0;
-        const minTranslateX = -(track.scrollWidth - track.parentElement.offsetWidth);
-        
-        let finalPosition = snapPosition;
-        if (finalPosition > maxTranslateX) finalPosition = maxTranslateX;
-        if (finalPosition < minTranslateX) finalPosition = minTranslateX;
-        
-        track.style.transform = `translateX(${finalPosition}px)`;
+        // Snap ke posisi slide terdekat dengan animasi
+        snapToNearestSlide(startTranslateX);
     }, { passive: true });
     
     track.addEventListener('touchmove', (e) => {
@@ -252,8 +360,9 @@ function enableTouchSwipe(track) {
         const newTranslateX = startTranslateX + deltaX;
         
         // Tambahkan resistensi saat mencapai batas
-        const maxTranslateX = 100; // Sedikit ruang ekstra di awal
-        const minTranslateX = -(track.scrollWidth - track.parentElement.offsetWidth + 100); // Ruang ekstra di akhir
+        const width = calculateSlideWidth();
+        const maxTranslateX = width * 0.5; // Sedikit ruang ekstra di awal
+        const minTranslateX = -(track.scrollWidth - track.parentElement.offsetWidth + width * 0.5);
         
         let finalTranslateX = newTranslateX;
         
@@ -264,8 +373,9 @@ function enableTouchSwipe(track) {
             finalTranslateX = minTranslateX + (newTranslateX - minTranslateX) * 0.2;
         }
         
-        track.style.transform = `translateX(${finalTranslateX}px)`;
-    }, { passive: false });
+        // Gunakan transform dengan translateZ untuk hardware acceleration
+        track.style.transform = `translate3d(${finalTranslateX}px, 0, 0)`;
+    }, { passive: true });
     
     // Mouse events (untuk testing di desktop)
     track.addEventListener('mousedown', (e) => {
@@ -282,28 +392,20 @@ function enableTouchSwipe(track) {
         track.style.animation = 'none';
         track.style.transition = 'none';
         track.style.cursor = 'grabbing';
+        track.classList.add('swiping');
         e.preventDefault();
     });
     
     track.addEventListener('mouseup', () => {
+        if (!isDragging) return;
+        
         isDragging = false;
         track.style.cursor = 'grab';
         track.style.transition = 'transform 0.3s ease';
+        track.classList.remove('swiping');
         
-        // Snap ke posisi slide terdekat
-        const slideWidth = track.children[0].offsetWidth;
-        const currentTranslateX = startTranslateX;
-        const snapPosition = Math.round(currentTranslateX / slideWidth) * slideWidth;
-        
-        // Batasi pergerakan
-        const maxTranslateX = 0;
-        const minTranslateX = -(track.scrollWidth - track.parentElement.offsetWidth);
-        
-        let finalPosition = snapPosition;
-        if (finalPosition > maxTranslateX) finalPosition = maxTranslateX;
-        if (finalPosition < minTranslateX) finalPosition = minTranslateX;
-        
-        track.style.transform = `translateX(${finalPosition}px)`;
+        // Snap ke posisi slide terdekat dengan animasi
+        snapToNearestSlide(startTranslateX);
     });
     
     track.addEventListener('mouseleave', () => {
@@ -311,6 +413,10 @@ function enableTouchSwipe(track) {
             isDragging = false;
             track.style.cursor = 'grab';
             track.style.transition = 'transform 0.3s ease';
+            track.classList.remove('swiping');
+            
+            // Snap ke posisi slide terdekat
+            snapToNearestSlide(startTranslateX);
         }
     });
     
@@ -323,8 +429,9 @@ function enableTouchSwipe(track) {
         const newTranslateX = startTranslateX + deltaX;
         
         // Tambahkan resistensi saat mencapai batas
-        const maxTranslateX = 100;
-        const minTranslateX = -(track.scrollWidth - track.parentElement.offsetWidth + 100);
+        const width = calculateSlideWidth();
+        const maxTranslateX = width * 0.5;
+        const minTranslateX = -(track.scrollWidth - track.parentElement.offsetWidth + width * 0.5);
         
         let finalTranslateX = newTranslateX;
         
@@ -334,45 +441,138 @@ function enableTouchSwipe(track) {
             finalTranslateX = minTranslateX + (newTranslateX - minTranslateX) * 0.2;
         }
         
-        track.style.transform = `translateX(${finalTranslateX}px)`;
+        // Gunakan transform dengan translateZ untuk hardware acceleration
+        track.style.transform = `translate3d(${finalTranslateX}px, 0, 0)`;
     });
+    
+    // Tambahkan event listener untuk orientasi perubahan
+    window.addEventListener('orientationchange', () => {
+        // Reset posisi carousel setelah perubahan orientasi
+        setTimeout(() => {
+            calculateSlideWidth();
+            track.style.transition = 'none';
+            currentSlideIndex = 0;
+            track.style.transform = 'translateX(0)';
+            updateIndicator();
+            
+            // Aktifkan kembali transisi setelah reset
+            setTimeout(() => {
+                track.style.transition = 'transform 0.3s ease';
+            }, 50);
+        }, 200);
+    });
+    
+    // Inisialisasi posisi awal
+    calculateSlideWidth();
+    updateIndicator();
 }
 
-// Tambahkan event listener untuk resize window
+// Tambahkan event listener untuk resize window dengan debounce untuk performa
+let resizeTimeout;
 window.addEventListener('resize', () => {
-    const track = document.querySelector('.carousel-track');
-    if (!track) return;
-    
-    // Reset animasi
-    track.style.animation = 'none';
-    track.style.transform = 'translateX(0)';
-    
-    // Reinisialisasi carousel
-    setTimeout(() => {
-        const isMobile = window.innerWidth <= 768;
-        if (!isMobile) {
-            track.style.animation = 'slideLeft 20s linear infinite';
-        } else {
-            enableTouchSwipe(track);
+    // Debounce resize event untuk menghindari terlalu banyak panggilan
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+        const track = document.querySelector('.carousel-track');
+        if (!track) return;
+        
+        // Reset animasi dan posisi
+        track.style.animation = 'none';
+        track.style.transition = 'none';
+        track.style.transform = 'translateX(0)';
+        
+        // Hapus indikator yang ada
+        const carouselContainer = track.closest('.carousel-container');
+        if (carouselContainer) {
+            const existingIndicator = carouselContainer.querySelector('.swipe-indicator');
+            if (existingIndicator) {
+                existingIndicator.remove();
+            }
         }
-    }, 100);
+        
+        // Reinisialisasi carousel berdasarkan ukuran layar
+        const isMobile = window.innerWidth <= 768;
+        
+        // Tambahkan atau hapus class mobile-carousel
+        if (carouselContainer) {
+            if (isMobile) {
+                carouselContainer.classList.add('mobile-carousel');
+            } else {
+                carouselContainer.classList.remove('mobile-carousel');
+            }
+        }
+        
+        // Terapkan animasi atau swipe sesuai ukuran layar
+        setTimeout(() => {
+            if (!isMobile) {
+                track.style.transition = 'transform 0.5s ease';
+                track.style.animation = 'slideLeft 20s linear infinite';
+                
+                // Tambahkan hover pause untuk desktop
+                const carousel = track.closest('.carousel');
+                if (carousel) {
+                    carousel.addEventListener('mouseenter', () => {
+                        track.style.animationPlayState = 'paused';
+                    });
+                    
+                    carousel.addEventListener('mouseleave', () => {
+                        track.style.animationPlayState = 'running';
+                    });
+                }
+            } else {
+                // Reinisialisasi touch swipe untuk mobile
+                enableTouchSwipe(track);
+            }
+        }, 100);
+    }, 250); // Delay untuk menghindari terlalu banyak panggilan saat resize
 });
 
-// Add this to your CSS
+// Add optimized CSS for carousel
 const style = document.createElement('style');
 style.textContent = `
     @keyframes slideLeft {
         0% {
-            transform: translateX(0);
+            transform: translate3d(0, 0, 0);
         }
         100% {
-            transform: translateX(calc(-33.333% * 6));
+            transform: translate3d(calc(-33.333% * 6), 0, 0);
         }
     }
     
-    /* Tambahkan style untuk cursor pada carousel */
+    /* Tambahkan style untuk cursor dan optimasi performa */
     .carousel-track {
         cursor: grab;
+        will-change: transform;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+    }
+    
+    /* Style untuk saat sedang swipe */
+    .carousel-track.swiping {
+        cursor: grabbing;
+    }
+    
+    /* Optimasi untuk mobile */
+    .mobile-carousel .carousel-track {
+        touch-action: pan-x;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Efek hover untuk card di dalam carousel */
+    @media (hover: hover) {
+        .carousel-slide:hover {
+            opacity: 1;
+            transform: translateY(-5px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+    }
+    
+    /* Pastikan semua slide terlihat jelas di mobile */
+    @media (max-width: 768px) {
+        .carousel-slide {
+            opacity: 1;
+            transition: transform 0.3s ease;
+        }
     }
 `;
 document.head.appendChild(style);
