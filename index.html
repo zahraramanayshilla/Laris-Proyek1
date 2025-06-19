@@ -7,18 +7,16 @@
     <title>Toko Laris - Camilan Tradisional Modern</title>
     <link rel="stylesheet" href="Assets/style.css" />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
-    <!-- tracer -->
     <script type="module" src="https://cdn.jsdelivr.net/gh/domyid/tracker@main/index.js"></script>
     <meta name="google-site-verification" content="62E0emCsIASQYaSwutFJmVcXy-ateYCP3XvdkwjtL6E" />
 </head>
 
 
 <body>
-    <!-- Header -->
     <header class="navbar">
         <div class="container">
             <h1 class="logo">Toko Laris</h1>
-            <button class="menu-toggle" id="menuToggle">&#9776;</button>
+            <button class="menu-toggle" id="menuToggle">☰</button>
             <nav id="mainNav">
                 <ul>
                     <li><a href="#home">Beranda</a></li>
@@ -31,7 +29,6 @@
         </div>
     </header>
 
-    <!-- Hero -->
     <section class="hero" id="home">
         <div class="container">
             <h2>Camilan Tradisional Rasa Juara</h2>
@@ -40,125 +37,45 @@
         </div>
     </section>
 
-    <!-- Produk -->
     <section class="produk" id="produk">
         <div class="container">
             <h2>Produk Unggulan</h2>
-            <div class="carousel-container">
-                <div class="carousel">
-                    <div class="carousel-track">
-                        <!-- Featured Products -->
-                        <div class="carousel-slide">
-                            <div class="card">
-                                <img src="images/contoh.webp" alt="Tempe Goreng" />
-                                <div class="card-content">
-                                    <h3>Tempe Goreng</h3>
-                                    <p class="price">Rp8.000</p>
-                                    <button onclick="addToCart('Tempe Goreng', 8000)" class="btn-add">Tambah ke
-                                        Keranjang</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="carousel-slide">
-                            <div class="card">
-                                <img src="images/contoh.webp" alt="Sale Keju" />
-                                <div class="card-content">
-                                    <h3>Sale Keju</h3>
-                                    <p class="price">Rp8.000</p>
-                                    <button onclick="addToCart('Sale Keju', 8000)" class="btn-add">Tambah ke
-                                        Keranjang</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="carousel-slide">
-                            <div class="card">
-                                <img src="images/contoh.webp" alt="Wajit" />
-                                <div class="card-content">
-                                    <h3>Wajit</h3>
-                                    <p class="price">Rp8.000</p>
-                                    <button onclick="addToCart('Wajit', 8000)" class="btn-add">Tambah ke
-                                        Keranjang</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="carousel-slide">
-                            <div class="card">
-                                <img src="images/contoh.webp" alt="Oncom Goreng" />
-                                <div class="card-content">
-                                    <h3>Oncom Goreng</h3>
-                                    <p class="price">Rp8.000</p>
-                                    <button onclick="addToCart('Oncom Goreng', 8000)" class="btn-add">Tambah ke
-                                        Keranjang</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="carousel-slide">
-                            <div class="card">
-                                <img src="images/contoh.webp" alt="Sale Pisang" />
-                                <div class="card-content">
-                                    <h3>Sale Pisang</h3>
-                                    <p class="price">Rp8.000</p>
-                                    <button onclick="addToCart('Sale Pisang', 8000)" class="btn-add">Tambah ke
-                                        Keranjang</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="carousel-slide">
-                            <div class="card">
-                                <img src="images/contoh.webp" alt="Basreng Bumbu Jeruk" />
-                                <div class="card-content">
-                                    <h3>Basreng Bumbu Jeruk</h3>
-                                    <p class="price">Rp8.000</p>
-                                    <button onclick="addToCart('Basreng Bumbu Jeruk', 8000)" class="btn-add">Tambah ke
-                                        Keranjang</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="carousel-slide">
-                            <div class="card">
-                                <img src="images/contoh.webp" alt="Keripik Singkong" />
-                                <div class="card-content">
-                                    <h3>Keripik Singkong</h3>
-                                    <p class="price">Rp8.000</p>
-                                    <button onclick="addToCart('Keripik Singkong', 8000)" class="btn-add">Tambah ke
-                                        Keranjang</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="carousel-slide">
-                            <div class="card">
-                                <img src="images/contoh.webp" alt="Keripik Pisang" />
-                                <div class="card-content">
-                                    <h3>Keripik Pisang</h3>
-                                    <p class="price">Rp8.000</p>
-                                    <button onclick="addToCart('Keripik Pisang', 8000)" class="btn-add">Tambah ke
-                                        Keranjang</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="carousel-slide">
-                            <div class="card">
-                                <img src="images/contoh.webp" alt="Rempeyek" />
-                                <div class="card-content">
-                                    <h3>Rempeyek</h3>
-                                    <p class="price">Rp8.000</p>
-                                    <button onclick="addToCart('Rempeyek', 8000)" class="btn-add">Tambah ke
-                                        Keranjang</button>
-                                </div>
-                            </div>
-                        </div>
+            <div class="produk-grid">
+                <div class="card">
+                    <img src="images/contoh.webp" alt="Tempe Goreng" />
+                    <div class="card-content">
+                        <h3>Tempe Goreng</h3>
+                        <p class="price">Rp8.000</p>
+                        <button onclick="addToCart('Tempe Goreng', 8000)" class="btn-add">Tambah ke
+                            Keranjang</button>
                     </div>
                 </div>
-                <a href="produk.html" class="btn">Lihat Semua Produk</a>
+                <div class="card">
+                    <img src="images/contoh.webp" alt="Sale Keju" />
+                    <div class="card-content">
+                        <h3>Sale Keju</h3>
+                        <p class="price">Rp8.000</p>
+                        <button onclick="addToCart('Sale Keju', 8000)" class="btn-add">Tambah ke
+                            Keranjang</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="images/contoh.webp" alt="Wajit" />
+                    <div class="card-content">
+                        <h3>Wajit</h3>
+                        <p class="price">Rp8.000</p>
+                        <button onclick="addToCart('Wajit', 8000)" class="btn-add">Tambah ke
+                            Keranjang</button>
+                    </div>
+                </div>
             </div>
+            <a href="produk.html" class="btn">Lihat Semua Produk</a>
         </div>
     </section>
 
-    <!-- Kontak -->
     <section class="kontak" id="kontak">
         <div class="container">
             <div class="kontak-card-horizontal">
-                <!-- MAP di bagian atas -->
                 <div class="kontak-map-full">
                     <iframe
                         src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15844.380444300665!2d107.52570365541992!3d-6.879208000000003!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68e445f794bbad%3A0xf1689bb9aadb89f!2sToko%20Laris!5e0!3m2!1sid!2sid!4v1746517174167!5m2!1sid!2sid"
@@ -166,7 +83,6 @@
                     </iframe>
                 </div>
 
-                <!-- Info Kontak -->
                 <div class="kontak-detail">
                     <div class="kontak-info-item">
                         <h3>📍 Alamat Kami</h3>
@@ -187,10 +103,9 @@
     </section>
 
 
-    <!-- Footer -->
     <footer>
         <div class="container">
-            <p>&copy; 2025 Toko Laris. Semua hak dilindungi.</p>
+            <p>© 2025 Toko Laris. Semua hak dilindungi.</p>
         </div>
     </footer>
 
