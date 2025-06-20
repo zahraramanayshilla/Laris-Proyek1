@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="Assets/style.css" />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
     <script type="module" src="https://cdn.jsdelivr.net/gh/domyid/tracker@main/index.js"></script>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <meta name="google-site-verification" content="62E0emCsIASQYaSwutFJmVcXy-ateYCP3XvdkwjtL6E" />
 </head>
 
@@ -40,34 +41,86 @@
     <section class="produk" id="produk">
         <div class="container">
             <h2>Produk Unggulan</h2>
-            <div class="produk-grid">
-                <div class="card">
-                    <img src="images/contoh.webp" alt="Tempe Goreng" />
-                    <div class="card-content">
-                        <h3>Tempe Goreng</h3>
-                        <p class="price">Rp8.000</p>
-                        <button onclick="addToCart('Tempe Goreng', 8000)" class="btn-add">Tambah ke
-                            Keranjang</button>
+            <!-- Carousel -->
+            <div class="carousel-container">
+                <i class='bx bx-chevron-left btn-carousel left'></i>
+
+                <div class="carousel-track-wrapper">
+                    <div class="carousel-track">
+                        <!-- Card 1 -->
+                        <div class="card">
+                            <img src="images/contoh.webp" alt="Tempe Goreng" />
+                            <div class="card-content">
+                                <h3>Tempe Goreng</h3>
+                                <p class="price">Rp8.000</p>
+                                <button onclick="addToCart('Tempe Goreng', 8000)" class="btn-add">Tambah ke
+                                    Keranjang</button>
+                            </div>
+                        </div>
+
+                        <!-- Card 2 -->
+                        <div class="card">
+                            <img src="images/contoh.webp" alt="Sale Keju" />
+                            <div class="card-content">
+                                <h3>Sale Keju</h3>
+                                <p class="price">Rp8.000</p>
+                                <button onclick="addToCart('Sale Keju', 8000)" class="btn-add">Tambah ke
+                                    Keranjang</button>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <img src="images/contoh.webp" alt="Sale Keju" />
+                            <div class="card-content">
+                                <h3>Sale Keju</h3>
+                                <p class="price">Rp8.000</p>
+                                <button onclick="addToCart('Sale Keju', 8000)" class="btn-add">Tambah ke
+                                    Keranjang</button>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <img src="images/contoh.webp" alt="Sale Keju" />
+                            <div class="card-content">
+                                <h3>Sale Keju</h3>
+                                <p class="price">Rp8.000</p>
+                                <button onclick="addToCart('Sale Keju', 8000)" class="btn-add">Tambah ke
+                                    Keranjang</button>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <img src="images/contoh.webp" alt="Sale Keju" />
+                            <div class="card-content">
+                                <h3>Sale Keju</h3>
+                                <p class="price">Rp8.000</p>
+                                <button onclick="addToCart('Sale Keju', 8000)" class="btn-add">Tambah ke
+                                    Keranjang</button>
+                            </div>
+                        </div>
+
+                        <!-- Card 3 -->
+                        <div class="card">
+                            <img src="images/contoh.webp" alt="Wajit" />
+                            <div class="card-content">
+                                <h3>Wajit</h3>
+                                <p class="price">Rp8.000</p>
+                                <button onclick="addToCart('Wajit', 8000)" class="btn-add">Tambah ke Keranjang</button>
+                            </div>
+                        </div>
+
+                        <!-- Card 4 -->
+                        <div class="card">
+                            <img src="images/contoh.webp" alt="Serundeng" />
+                            <div class="card-content">
+                                <h3>Serundeng</h3>
+                                <p class="price">Rp8.000</p>
+                                <button onclick="addToCart('Serundeng', 8000)" class="btn-add">Tambah ke
+                                    Keranjang</button>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
-                <div class="card">
-                    <img src="images/contoh.webp" alt="Sale Keju" />
-                    <div class="card-content">
-                        <h3>Sale Keju</h3>
-                        <p class="price">Rp8.000</p>
-                        <button onclick="addToCart('Sale Keju', 8000)" class="btn-add">Tambah ke
-                            Keranjang</button>
-                    </div>
-                </div>
-                <div class="card">
-                    <img src="images/contoh.webp" alt="Wajit" />
-                    <div class="card-content">
-                        <h3>Wajit</h3>
-                        <p class="price">Rp8.000</p>
-                        <button onclick="addToCart('Wajit', 8000)" class="btn-add">Tambah ke
-                            Keranjang</button>
-                    </div>
-                </div>
+
+                <i class='bx bx-chevron-right btn-carousel right'></i>
             </div>
             <a href="produk.html" class="btn">Lihat Semua Produk</a>
         </div>

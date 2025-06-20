@@ -311,3 +311,37 @@ function initializeScrollAnimations() {
 document.addEventListener('DOMContentLoaded', function() {
     initializeScrollAnimations();
 });
+
+// carousel
+document.addEventListener('DOMContentLoaded', () => {
+    const track = document.querySelector('.carousel-track');
+    const btnLeft = document.querySelector('.btn-carousel.left');
+    const btnRight = document.querySelector('.btn-carousel.right');
+
+    if (!track || !btnLeft || !btnRight) {
+        console.warn("Elemen carousel tidak ditemukan.");
+        return;
+    }
+
+    function getCardScrollWidth() {
+        const card = track.querySelector('.card');
+        const gap = parseFloat(getComputedStyle(track).gap) || 24;
+        return card.offsetWidth + gap;
+    }
+
+    btnLeft.addEventListener('click', () => {
+        track.scrollBy({
+            left: -getCardScrollWidth() * 4,
+            behavior: 'smooth'
+        });
+    });
+
+    btnRight.addEventListener('click', () => {
+        track.scrollBy({
+            left: getCardScrollWidth() * 4,
+            behavior: 'smooth'
+        });
+    });
+});
+  
+  
