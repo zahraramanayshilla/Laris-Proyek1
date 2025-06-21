@@ -55,6 +55,7 @@ body {
 }
 
 .btn:hover {
+  font-weight: 600;
   transform: translateY(
     -2px
   );
@@ -222,73 +223,116 @@ nav
 /* -------------------------------
      PRODUCT SECTION
   ------------------------------- */
-  .produk {
-    padding: 4rem 0;
-    background-color: #fff;
-    text-align: center;
-  }
-  
-  .produk h2 {
-    font-size: 2.5rem;
-    margin-bottom: 2rem;
-    color: var(--primary-color);
-  }
-  
+.produk {
+  padding: 4rem
+    0;
+  background-color: #fff;
+  text-align: center;
+}
+
+.produk
+  h2 {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  color: var(
+    --primary-color
+  );
+}
+
+.produk-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(
+      250px,
+      1fr
+    )
+  );
+  gap: 2rem;
+  padding: 2rem
+    0;
+}
+
+/* Responsif: Maksimal 4 kolom di desktop */
+@media (min-width: 1024px) {
   .produk-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
-    padding: 2rem 0;
+    grid-template-columns: repeat(
+      4,
+      1fr
+    );
   }
-  
-  /* Responsif: Maksimal 4 kolom di desktop */
-  @media (min-width: 1024px) {
-    .produk-grid {
-      grid-template-columns: repeat(4, 1fr);
-    }
-  }
-  
-  /* -------------------------------
+}
+
+/* -------------------------------
      CARD STYLE
   -------------------------------- */
-  .card {
-    background: white;
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s;
-    opacity: 0;
-    transform: translateY(30px);
-    animation: fadeIn 0.6s ease forwards;
-  }
-  
-  .card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-  }
-  
-  .card img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-  }
-  
-  .card-content {
-    padding: 1.5rem;
-  }
-  
-  .card h3 {
-    font-size: 1.25rem;
-    margin-bottom: 0.5rem;
-    color: var(--text-color);
-  }
-  
-  .price {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: var(--primary-color);
-    margin-bottom: 1rem;
-  }
+.card {
+  background: white;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0
+    4px
+    15px
+    rgba(
+      0,
+      0,
+      0,
+      0.1
+    );
+  transition: transform
+    0.3s;
+  opacity: 0;
+  transform: translateY(
+    30px
+  );
+  animation: fadeIn
+    0.6s
+    ease
+    forwards;
+}
+
+.card:hover {
+  transform: translateY(
+    -10px
+  );
+  box-shadow: 0
+    6px
+    12px
+    rgba(
+      0,
+      0,
+      0,
+      0.15
+    );
+}
+
+.card
+  img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.card-content {
+  padding: 1.5rem;
+}
+
+.card h3 {
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+  color: var(
+    --text-color
+  );
+}
+
+.price {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(
+    --primary-color
+  );
+  margin-bottom: 1rem;
+}
 
 .btn-add {
   width: 100%;
@@ -324,21 +368,34 @@ nav
 
 .carousel-track {
   display: flex;
-  transition: transform 0.5s ease;
+  transition: transform
+    0.5s
+    ease;
   gap: 1.5rem;
   overflow: hidden;
 }
 
 .card {
-  flex: 0 0 25%; /* 4 per baris = 100% / 4 */
+  flex: 0
+    0 25%; /* 4 per baris = 100% / 4 */
   background: #fff;
   border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  box-shadow: 0
+    4px
+    10px
+    rgba(
+      0,
+      0,
+      0,
+      0.1
+    );
   overflow: hidden;
-  transition: transform 0.3s;
+  transition: transform
+    0.3s;
 }
 
-.card img {
+.card
+  img {
   width: 100%;
   height: 200px;
   object-fit: cover;
@@ -354,12 +411,14 @@ nav
     --primary-color
   );
   font-weight: bold;
-  margin: 0.5rem 0;
+  margin: 0.5rem
+    0;
 }
 
 .btn-add {
   color: white;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem
+    1rem;
   border: none;
   width: 100%;
   padding: 0.8rem;
@@ -374,19 +433,33 @@ nav
 }
 
 .btn-add:hover {
-  background:rgb(0, 11, 63);
+  background: rgb(
+    0,
+    11,
+    63
+  );
 }
 
 /* Tombol kiri kanan */
 .btn-carousel {
   position: absolute;
   top: 50%;
-  transform: translateY(-50%);
+  transform: translateY(
+    -50%
+  );
   font-size: 2.5rem;
   background: white;
   color: #ff7f50;
   border-radius: 50%;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  box-shadow: 0
+    2px
+    6px
+    rgba(
+      0,
+      0,
+      0,
+      0.15
+    );
   z-index: 1;
   cursor: pointer;
   padding: 0.5rem;
@@ -400,27 +473,30 @@ nav
   right: 10px;
 }
 
-
-
 /* RESPONSIVE */
 @media (max-width: 1024px) {
   .card {
-    flex: 0 0 33.33%; /* 3 per baris */
+    flex: 0
+      0
+      33.33%; /* 3 per baris */
   }
 }
 
 @media (max-width: 768px) {
   .card {
-    flex: 0 0 50%; /* 2 per baris */
+    flex: 0
+      0
+      50%; /* 2 per baris */
   }
 }
 
 @media (max-width: 480px) {
   .card {
-    flex: 0 0 100%; /* 1 per baris */
+    flex: 0
+      0
+      100%; /* 1 per baris */
   }
 }
-
 
 /* -------------------------------
      PRODUCT PAGE SPESIFIK
