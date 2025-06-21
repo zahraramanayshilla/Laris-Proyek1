@@ -326,6 +326,7 @@ nav
   display: flex;
   transition: transform 0.5s ease;
   gap: 1.5rem;
+  overflow: hidden;
 }
 
 .card {
@@ -398,6 +399,8 @@ nav
 .btn-carousel.right {
   right: 10px;
 }
+
+
 
 /* RESPONSIVE */
 @media (max-width: 1024px) {

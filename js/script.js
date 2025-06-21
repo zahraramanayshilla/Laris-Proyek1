@@ -111,7 +111,6 @@ function calculateTotal(cartData) {
     return cartData.reduce((acc, item) => acc + item.price, 0);
 }
 
-
 // Notification system
 function showNotification(message) {
     const notification = document.createElement('div');
@@ -313,35 +312,35 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // carousel
+
 document.addEventListener('DOMContentLoaded', () => {
     const track = document.querySelector('.carousel-track');
     const btnLeft = document.querySelector('.btn-carousel.left');
     const btnRight = document.querySelector('.btn-carousel.right');
 
-    if (!track || !btnLeft || !btnRight) {
-        console.warn("Elemen carousel tidak ditemukan.");
-        return;
-    }
+    if (!track || !btnLeft || !btnRight) return;
 
-    function getCardScrollWidth() {
-        const card = track.querySelector('.card');
-        const gap = parseFloat(getComputedStyle(track).gap) || 24;
-        return card.offsetWidth + gap;
-    }
+    const gap = parseFloat(getComputedStyle(track).gap) || 16;
+    const card = track.querySelector('.card');
+    const scrollStep = card.offsetWidth + gap;
 
+    // Geser manual
     btnLeft.addEventListener('click', () => {
-        track.scrollBy({
-            left: -getCardScrollWidth() * 4,
-            behavior: 'smooth'
-        });
+        track.scrollBy({ left: -scrollStep, behavior: 'smooth' });
     });
 
     btnRight.addEventListener('click', () => {
-        track.scrollBy({
-            left: getCardScrollWidth() * 4,
-            behavior: 'smooth'
-        });
+        track.scrollBy({ left: scrollStep, behavior: 'smooth' });
     });
+
+    // Geser otomatis setiap 3 detik
+    setInterval(() => {
+        if (track.scrollLeft + track.clientWidth >= track.scrollWidth - scrollStep) {
+            track.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+            track.scrollBy({ left: scrollStep, behavior: 'smooth' });
+        }
+    }, 3000);
 });
   
   
