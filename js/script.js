@@ -84,6 +84,7 @@ function updateCart() {
                     <span>Rp${item.price.toLocaleString()}</span>
                     <button onclick="removeItem(${index})" class="btn-remove">Hapus</button>
                 </div>
+                
             `;
             cartItems.appendChild(li);
         });
